@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File: dmp.c						     v0.21   03/27/2025
+* File: dmp.c						     v0.24   04/04/2025
 *
 * Purpose: File hex/ASCII dump utility.
 *
@@ -49,6 +49,7 @@
 *
 * Notes:
 *   1. Compile instructions:  gcc -o bin/dmp dmp.c -L. -ldatam
+*        (to only assemble):  gcc -o dmp.s -S dmp.c
 *
 *   2. Support for the 'what' command is provided via the arcane string that's
 *      assigned to the 'What' variable.  The "@(#)" part is what 'what' detects
@@ -92,10 +93,13 @@
 *   0.19  03/25/2025  changed '-b' (1) and '-w' (4) options; debug for '--'/'++'
 *   0.20  03/25/2025  unified b/w options: -b (1), +b (2), -w (4), +w (8)
 *   0.21  03/27/2025  changed default pipe file name, set default extn just once
+*   0.22  04/03/2025  return code zero for no-args operation
+*   0.23  04/04/2025  switch '--about' and '--version' to '+' options
+*   0.24  04/04/2025  reworked option flags (no functional changes)
 *
 *******************************************************************************/
 
-static char  *What = "@(#)dmp.c v0.21 03/27/2025 DataM";
+static char  *What = "@(#)dmp.c v0.24 04/04/2025 DataM";
 static char  *Title = "File Hex/ASCII Dump Utility";
 
 #include <stdio.h>
@@ -203,7 +207,7 @@ int  main( int argc, char** argv )
    else if ( argc == 1 )   /* no arguments specified -- show brief message */
    {
       blurb( Pgm, what("ver"), Title, "(use '%s -help' for help)" );
-      return ( 411 );
+      return ( 0 );
    }
 
    /* main processing loop; done when all arguments are processed */
@@ -638,6 +642,8 @@ int  dump_file( FILE* fpi, FILE* fpo )
 
 int  about_msg( int mx )
 {
+   if ( Debug )  printf( "(mx: %i)\n", mx );
+
    /* show us the program name, title, and version... */
 
    blurb( Pgm, what("ver"), Title, "" );    /* blurb line-one only */
@@ -664,7 +670,9 @@ int  about_msg( int mx )
 
 int  ver_msg( int mx )
 {
-   printf( "\n" );
+   if ( Debug )  printf( "(mx: %i)\n", mx );
+
+   if ( mx < 2 )  printf( "\n" );
 
    if ( mx )    /* +ver */
    {
@@ -675,7 +683,7 @@ int  ver_msg( int mx )
       printf( "%s   %s\n", Pgm, what("ver") );
    }
 
-   printf( "\n" );
+   if ( mx < 2 )  printf( "\n" );
 
    return ( 411 );
 }
@@ -683,7 +691,7 @@ int  ver_msg( int mx )
 
 int  proc_args( int* aix, int argc, char** argv )
 {
-   int   err = 0, i, ln, mx;
+   int   err = 0, i, ln, dx, lx, mx, nx, ox;
    char  *optn, opt;
 
    if ( !aix )  return ( -1 );
@@ -692,36 +700,45 @@ int  proc_args( int* aix, int argc, char** argv )
    {
       if ( argv[*aix][0] == '-'  ||  argv[*aix][0] == '+' )
       {
-         mx = argv[*aix][0] == '+';
+         /* dx: doubled option      '='(0) '=='(1)  ('=' is '-/+') */
+         /* lx: long-form option   '=?'(0) '--'(1)                 */
+         /* mx: major option       '-?'(0) '+?'(1)                 */
+         /* ox: option index       '-?'(0) '+?'(1) '--'(2) '++'(3) */
+
+         mx = ( argv[*aix][0] == '+' );
+         dx = ( argv[*aix][0] == argv[*aix][1] );
+         ox = mx + ( dx * 2 );   /* '-'(0) '+'(1)  '--'(2) '++'(3) */
+         lx = ( dx  &&  !mx );   /* '--' standard long-form option */
+
+         if ( Debug > 1 )
+            printf( "(mx.%i dx.%i ox.%i lx.%i)  arg[%i]: \"%s\"\n",
+                    mx, dx, ox, lx, *aix, argv[*aix] );
 
          /* create a pointer to the start of the current option string */
 
-         i = ( argv[*aix][0] == argv[*aix][1] ? 2 : 1 );
-
-         optn = &argv[*aix][i];    /* starts after the '-'/'--' part */
-
-         opt = optn[0];    /* grab the option character */
+         optn = &argv[*aix][dx+1];    /* option starts after '-'/'--' part */
+         opt = optn[0];               /* capture option's first character  */
 
          /* decode the command line option string */
 
          if ( !strcmp( optn, "debug" ) )
          {
-            Debug = mx + 1;
+            Debug = ox + 1;    /* debug = { 1 2 3 4 } */
 
             printf( "(debug: %i)\n", Debug );
          }
          else if ( !strcmp( optn, "about" ) )
          {
-            err = about_msg( mx );
+            err = about_msg( ox );    /* about: { 0 1 2 3 } */
          }
          else if ( !strcmp( optn, "help" ) )
          {
-            err = help_msg( mx );
+            err = help_msg( mx );    /* help: { 0 1 } */
          }
          else if ( !strcmp( optn, "ver" )  ||
                    !strcmp( optn, "version" ) )
          {
-            err = ver_msg( mx );
+            err = ver_msg( ox );    /* version: { 0 1 2 3 } */
          }
          else if ( !strcmp( optn, "xo" ) )   /* hex-only */
          {
@@ -1108,6 +1125,8 @@ int  proc_args( int* aix, int argc, char** argv )
 
 int  help_msg( int mx )
 {
+   if ( Debug )  printf( "(mx: %i)\n", mx );
+
    /* just give us a blank line, and then the name, title, and version... */
 
    about_msg( -1 );
