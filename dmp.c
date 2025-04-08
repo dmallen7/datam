@@ -48,7 +48,7 @@
 *     -ver = show version message
 *
 * Notes:
-*   1. Compile instructions:  gcc -o bin/dmp dmp.c -L. -ldatam
+*   1. Compile instructions:  gcc -o $HOME/bin/dmp dmp.c -L$HOME/lib -ldatam
 *        (to only assemble):  gcc -o dmp.s -S dmp.c
 *
 *   2. Support for the 'what' command is provided via the arcane string that's

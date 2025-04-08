@@ -9,8 +9,12 @@
 *        gcc -c blurb.c grammer.c what.c winfo.c
 *        ar -cru libdatam.a blurb.o grammer.o what.o winfo.o
 *        ranlib libdatam.a
+*        \mv -f *.o $HOME/obj
+*        \mv -f *.a $HOME/lib
 *
-*   2. Compile using the library:  gcc -o bin/dmp dmp.c -L. -ldatam
+*   2. Compile using the library:
+*
+*         gcc -o $HOME/bin/dmp dmp.c -L$HOME/lib -ldatam
 *
 *   3. Support for the 'what' command is provided via the arcane string that's
 *      assigned to the 'What' variable.  The "@(#)" part is what 'what' detects

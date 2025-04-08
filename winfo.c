@@ -16,9 +16,9 @@
 *   Version: "v0.11"   Date: "08/24/2021"
 *
 * Notes:
-*   1. Compile instructions:  gcc -c winfo.c
-*                             ar -cru libdatam.a winfo.o
-*                             ranlib libdatam.a
+*   1. Compile instructions:  gcc -o $HOME/obj/winfo.o -c winfo.c
+*                             ar -cru HOME/lib/libdatam.a HOME/obj/winfo.o
+*                             ranlib HOME/lib/libdatam.a
 *
 *   2. Support for the 'what' command is provided via the arcane string that's
 *      assigned to the 'What' variable.  The "@(#)" part is what 'what' detects

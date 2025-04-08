@@ -31,9 +31,9 @@
 *   testing   Department of Redundancy Department   v1.2a
 *
 * Notes:
-*   1. Compile instructions:  gcc -c blurb.c
-*                             ar -cru libdatam.a blurb.o
-*                             ranlib libdatam.a
+*   1. Compile instructions:  gcc -o $HOME/obj/blurb.o -c blurb.c
+*                             ar -cru $HOME/lib/libdatam.a $HOME/obj/blurb.o
+*                             ranlib $HOME/lib/libdatam.a
 *
 *   2. Support for the 'what' command is provided via the arcane string that's
 *      assigned to the 'What' variable.  The "@(#)" part is what 'what' detects

@@ -15,9 +15,9 @@
 * Usage:  fprintf( Fpo, "End-of-File   (%i byte%s)", count, ss( count ) );
 *
 * Notes:
-*   1. Compile instructions:  gcc -c grammer.c
-*                             ar -cru libdatam.a grammer.o
-*                             ranlib libdatam.a
+*   1. Compile instructions:  gcc -o $HOME/obj/grammer.o -c grammer.c
+*                             ar -cru $HOME/lib/libdatam.a $HOME/obj/grammer.o
+*                             ranlib $HOME/lib/libdatam.a
 *
 *   2. Support for the 'what' command is provided via the arcane string that's
 *      assigned to the 'What' variable.  The "@(#)" part is what 'what' detects
